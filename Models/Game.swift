@@ -13,10 +13,10 @@ struct Game {
     var score = 0
     var round = 1
     
-    typealias User = [String:Int]
-    var leaderboard: Array<[User]> = []
+    typealias User = (name: String, highscore: Int)// target: Int)
+    var leaderboard: Array<User> = []
 
-    mutating func points(sliderValue: Int) -> Int {
+    func points(sliderValue: Int) -> Int {
         //return 100 - Int(pow(Double(sliderValue - target), 2.0).squareRoot())
         let pointTotal: Int = 100 - abs(sliderValue - target)
         return pointTotal

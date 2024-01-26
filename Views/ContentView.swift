@@ -17,14 +17,13 @@ struct ContentView: View {
     @State private var username: String = "Guest"
     @State private var game: Game = Game()
     
-    @FocusState private var usernameFieldIsVisible: Bool = false
+    @State private var usernameFieldIsVisible: Bool = false
 
 
     var body: some View {
         VStack{
             HStack{
                 Text("Welcome \(username)!")
-                TextField("Welcome ", text:)
                 Button(action:{
                     self.usernameFieldIsVisible = true
                     print(self.usernameFieldIsVisible)
@@ -58,7 +57,7 @@ struct ContentView: View {
             Button(action:{
                 self.alertIsVisible = true
                 print(self.alertIsVisible)
-                game.target = Int.random(in:1...100)            }){
+                }){
                 Text("Hit Me")
                     .foregroundColor(Color.white)
             }
@@ -66,26 +65,26 @@ struct ContentView: View {
                    content:{
                 var roundedValue: Int = Int(self.sliderValue.rounded())
                 var points: Int = game.points(sliderValue: roundedValue)
+                
                 return Alert(title: Text("Stopped On"), message: Text("\(roundedValue)" + "\n You Scored \(points) points!"), dismissButton: .default(Text("Start A New Round"), action: {
-                    let leadBoard: [Int] = []
-                    let scoreAmount = game.leaderboard.count - 1
-                    if game.leaderboard.isEmpty{
-                        game.leaderboard.append([username: points])
+                    game.target = Int.random(in:1...100)
+                    if game.leaderboard.count < 5{
+                        game.leaderboard.append((username, points))
+                        game.leaderboard.sort(by:{$0.highscore > $1.highscore})
                         return
-                        
                     }
-                    for scoreIndex in 0...scoreAmount {
+                    print("Hello")
+                    for scoreIndex in 0...4 {
                         let name = username
                         print(name)
-                        let score = game.leaderboard[scoreAmount - scoreIndex]
+                        let score = game.leaderboard[4 - scoreIndex].highscore
                         print(score)
                         //print(score[0])
-                        let difference = points - game.leaderboard[scoreAmount - scoreIndex]
+                        let difference = points - score //game.leaderboard[scoreAmount - scoreIndex].values
                         switch(difference/difference){
-                        case -1: if leadBoard[scoreIndex] != 0 {
-                            game.leaderboard.insert([username: points], at: scoreIndex)
+                        case -1:
+                            game.leaderboard.insert((username, points), at: scoreIndex)
                             game.leaderboard.removeLast()
-                        }
                             break
                         default:
                             continue
@@ -107,9 +106,10 @@ struct ContentView: View {
             }
             .alert(isPresented: $leaderboardIsVisible,
                    content:{
-                var highscore = game.leaderboard.first?.values
-                print(highscore)
-                return Alert(title: Text("Your Best Score Is"), message: Text("Test"), dismissButton: .default(Text("Close")))
+                let highscore = game.leaderboard.first!
+                let score = highscore.highscore
+                let player = highscore.name
+                return Alert(title: Text(String(score)), message:Text("\(player) Has The Highest Score") .fontWeight(.black), dismissButton: .default(Text("Close")))
             })
                 .buttonStyle(.bordered)
                 .background(Color(red:0.502, green: 0.56, blue: 0.973))
